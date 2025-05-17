@@ -1,0 +1,235 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API Gateway для микросервисной архитектуры обработки текстовых файлов.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API Gateway
+  version: "1.0"
+paths:
+  /analysis/{file_id}:
+    post:
+      description: Перенаправляет запрос на анализ файла в File Analysis Service.
+      parameters:
+      - description: ID файла для анализа
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Сообщение о принятии запроса на анализ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Analysis Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для анализа файла (Сценарий 2)
+      tags:
+      - analysis
+  /analysis/results-all:
+    get:
+      description: Перенаправляет запрос на получение списка всех результатов анализа
+        в File Analysis Service.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список результатов анализа (каждый элемент с file_id, paragraph_count,
+            etc.)
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Analysis Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для получения списка всех результатов анализа (дополнительно)
+      tags:
+      - analysis
+  /analysis/results/{file_id}:
+    get:
+      description: Перенаправляет запрос на получение результатов анализа в File Analysis
+        Service.
+      parameters:
+      - description: ID файла
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результаты анализа (file_id, paragraph_count, word_count, character_count)
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Результаты анализа не найдены
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Analysis Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для получения результатов анализа файла (Сценарий 2)
+      tags:
+      - analysis
+  /analysis/wordclouds:
+    get:
+      description: Перенаправляет запрос на получение облака слов в File Analysis
+        Service.
+      parameters:
+      - description: Location (путь) к файлу облака слов
+        in: query
+        name: location
+        required: true
+        type: string
+      produces:
+      - image/png
+      responses:
+        "200":
+          description: Изображение облака слов
+          schema:
+            type: file
+        "400":
+          description: Параметр location не указан
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Облако слов не найдено
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Analysis Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для получения облака слов (Сценарий 4)
+      tags:
+      - analysis
+  /files:
+    get:
+      description: Перенаправляет запрос на получение списка всех файлов в File Storing
+        Service.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список файлов (каждый элемент с id, name, location)
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Storing Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для получения списка всех файлов (дополнительно)
+      tags:
+      - files
+  /files/{id}:
+    get:
+      description: Перенаправляет запрос на получение файла в File Storing Service.
+      parameters:
+      - description: ID файла
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Содержимое файла
+          schema:
+            type: string
+        "404":
+          description: Файл не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Storing Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для получения файла (Сценарий 3)
+      tags:
+      - files
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Перенаправляет запрос на загрузку файла в File Storing Service.
+      parameters:
+      - description: Файл для загрузки (только .txt)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ID загруженного файла
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера или ошибка File Storing Service
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Прокси для загрузки файла (Сценарий 1)
+      tags:
+      - files
+schemes:
+- http
+swagger: "2.0"

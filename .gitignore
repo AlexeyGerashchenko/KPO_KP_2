@@ -1,0 +1,32 @@
+bin/
+*.idea/
+*.vscode/
+*.DS_Store
+
+# Docker
+.dockerignore
+docker-compose.yml
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Logs
+logs
+*.log
+
+# Test files
+coverage.*
+*.test
+
+# Env files
+.env
+.env.*
+!/.env.example 
+
+# File storage directories
+file_storage_1/
+file_storage_2/ 

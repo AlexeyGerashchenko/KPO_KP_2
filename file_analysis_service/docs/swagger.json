@@ -1,0 +1,292 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Этот сервис отвечает за анализ файлов, хранение результатов и их выдачу.",
+        "title": "File Analysis Service API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8082",
+    "basePath": "/api/v1",
+    "paths": {
+        "/analysis/results": {
+            "get": {
+                "description": "Возвращает file_id и location облака слов для всех проанализированных файлов.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Список всех результатов анализа",
+                "responses": {
+                    "200": {
+                        "description": "Список результатов анализа",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AnalysisResult"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/results-all": {
+            "get": {
+                "description": "Возвращает file_id и location облака слов для всех проанализированных файлов.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Список всех результатов анализа (для отладки)",
+                "responses": {
+                    "200": {
+                        "description": "Список результатов анализа",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AnalysisResult"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/results/{file_id}": {
+            "get": {
+                "description": "Возвращает результаты анализа файла (количество абзацев, слов, символов) по его ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Получение результатов анализа",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID файла",
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Результаты анализа (без облака слов)",
+                        "schema": {
+                            "$ref": "#/definitions/models.AnalysisResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Результаты анализа не найдены",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/wordclouds": {
+            "get": {
+                "description": "Возвращает изображение облака слов по его location (пути к файлу).",
+                "produces": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif",
+                    "image/svg+xml"
+                ],
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Получение облака слов",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Location (путь) к файлу облака слов",
+                        "name": "location",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Изображение облака слов",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Параметр location не указан",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Облако слов не найдено",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/analysis/{file_id}": {
+            "post": {
+                "description": "Инициирует процесс анализа файла по его ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Запрос на анализ файла",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID файла для анализа",
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Сообщение о принятии запроса на анализ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка валидации ID файла",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера при запуске анализа",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.AnalysisResult": {
+            "description": "Результаты анализа текстового файла, включая количество абзацев, слов, символов и путь к облаку слов.",
+            "type": "object",
+            "properties": {
+                "character_count": {
+                    "type": "integer",
+                    "example": 1500
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "file_id": {
+                    "description": "ID оригинального файла",
+                    "type": "string",
+                    "example": "unique-file-id"
+                },
+                "id": {
+                    "description": "gorm.Model заменено на явные поля для Swagger",
+                    "type": "integer",
+                    "example": 1
+                },
+                "paragraph_count": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "word_cloud_location": {
+                    "description": "Путь к сохраненному изображению облака слов",
+                    "type": "string",
+                    "example": "/app/file_storage_2/unique-file-id_wordcloud.png"
+                },
+                "word_count": {
+                    "type": "integer",
+                    "example": 250
+                }
+            }
+        }
+    }
+}

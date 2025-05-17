@@ -1,0 +1,191 @@
+basePath: /api/v1
+definitions:
+  models.File:
+    description: Метаданные файла, хранящиеся в базе данных.
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        description: Время удаления (если удален)
+        example: "2023-01-01T14:00:00Z"
+        type: string
+      id:
+        example: unique-file-id
+        type: string
+      location:
+        example: /app/file_storage_1/unique-file-id.txt
+        type: string
+      name:
+        example: example.txt
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Этот сервис отвечает за хранение и выдачу файлов.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: File Storing Service API
+  version: "1.0"
+paths:
+  /files:
+    get:
+      description: Возвращает ID и имена всех загруженных файлов.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список файлов
+          schema:
+            items:
+              $ref: '#/definitions/models.File'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список всех файлов
+      tags:
+      - files
+  /files/{id}:
+    get:
+      description: Возвращает содержимое файла по его ID.
+      parameters:
+      - description: ID файла
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Содержимое файла
+          schema:
+            type: string
+        "404":
+          description: Файл не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение файла по ID
+      tags:
+      - files
+  /files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает текстовый файл, сохраняет его и возвращает ID.
+      parameters:
+      - description: Файл для загрузки (только .txt)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ID загруженного файла
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка валидации или обработки файла
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Загрузка файла
+      tags:
+      - files
+  /internal/file-content:
+    get:
+      description: Возвращает содержимое файла по его location.
+      parameters:
+      - description: Location файла
+        in: query
+        name: location
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Содержимое файла
+          schema:
+            type: string
+        "404":
+          description: Файл не найден по указанному location
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение содержимого файла по location (внутренний)
+      tags:
+      - files
+  /internal/files/{id}/location:
+    get:
+      description: Возвращает location файла по его ID для использования другими сервисами.
+      parameters:
+      - description: ID файла
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Location файла
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Файл не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение location файла по ID (внутренний)
+      tags:
+      - files
+schemes:
+- http
+swagger: "2.0"

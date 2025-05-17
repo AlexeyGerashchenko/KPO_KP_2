@@ -1,0 +1,203 @@
+basePath: /api/v1
+definitions:
+  models.AnalysisResult:
+    description: Результаты анализа текстового файла, включая количество абзацев,
+      слов, символов и путь к облаку слов.
+    properties:
+      character_count:
+        example: 1500
+        type: integer
+      created_at:
+        format: date-time
+        type: string
+      deleted_at:
+        format: date-time
+        type: string
+      file_id:
+        description: ID оригинального файла
+        example: unique-file-id
+        type: string
+      id:
+        description: gorm.Model заменено на явные поля для Swagger
+        example: 1
+        type: integer
+      paragraph_count:
+        example: 5
+        type: integer
+      updated_at:
+        format: date-time
+        type: string
+      word_cloud_location:
+        description: Путь к сохраненному изображению облака слов
+        example: /app/file_storage_2/unique-file-id_wordcloud.png
+        type: string
+      word_count:
+        example: 250
+        type: integer
+    type: object
+host: localhost:8082
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Этот сервис отвечает за анализ файлов, хранение результатов и их выдачу.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: File Analysis Service API
+  version: "1.0"
+paths:
+  /analysis/{file_id}:
+    post:
+      description: Инициирует процесс анализа файла по его ID.
+      parameters:
+      - description: ID файла для анализа
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Сообщение о принятии запроса на анализ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка валидации ID файла
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера при запуске анализа
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Запрос на анализ файла
+      tags:
+      - analysis
+  /analysis/results:
+    get:
+      description: Возвращает file_id и location облака слов для всех проанализированных
+        файлов.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список результатов анализа
+          schema:
+            items:
+              $ref: '#/definitions/models.AnalysisResult'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список всех результатов анализа
+      tags:
+      - analysis
+  /analysis/results-all:
+    get:
+      description: Возвращает file_id и location облака слов для всех проанализированных
+        файлов.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список результатов анализа
+          schema:
+            items:
+              $ref: '#/definitions/models.AnalysisResult'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список всех результатов анализа (для отладки)
+      tags:
+      - analysis
+  /analysis/results/{file_id}:
+    get:
+      description: Возвращает результаты анализа файла (количество абзацев, слов,
+        символов) по его ID.
+      parameters:
+      - description: ID файла
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результаты анализа (без облака слов)
+          schema:
+            $ref: '#/definitions/models.AnalysisResult'
+        "404":
+          description: Результаты анализа не найдены
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение результатов анализа
+      tags:
+      - analysis
+  /analysis/wordclouds:
+    get:
+      description: Возвращает изображение облака слов по его location (пути к файлу).
+      parameters:
+      - description: Location (путь) к файлу облака слов
+        in: query
+        name: location
+        required: true
+        type: string
+      produces:
+      - image/png
+      - image/jpeg
+      - image/gif
+      - image/svg+xml
+      responses:
+        "200":
+          description: Изображение облака слов
+          schema:
+            type: file
+        "400":
+          description: Параметр location не указан
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Облако слов не найдено
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение облака слов
+      tags:
+      - analysis
+schemes:
+- http
+swagger: "2.0"
